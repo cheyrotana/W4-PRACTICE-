@@ -2,25 +2,28 @@ import 'package:flutter/material.dart';
 
 class Ressource {
   final String name;
-  final int size;   // in MB
+  final int size; // in MB
 
-  Ressource({required this.name, required this.size}); 
+  Ressource({required this.name, required this.size});
 }
 
 enum DownloadStatus { notDownloaded, downloading, downloaded }
 
 class DownloadController extends ChangeNotifier {
-  
   DownloadController(this.ressource);
 
   // DATA
   Ressource ressource;
-  final DownloadStatus _status = DownloadStatus.notDownloaded;
-  final double _progress = 0.0;         // 0.0 → 1.0
+  late DownloadStatus _status = DownloadStatus.notDownloaded;
+  late double _progress = 0.0; // 0.0 → 1.0
 
   // GETTERS
   DownloadStatus get status => _status;
   double get progress => _progress;
+  String get title => ressource.name;
+  int get size => ressource.size;
+  double get downloadedSize => progress * size;
+  double get percent => progress * 100;
 
   // ACTIONS
   void startDownload() async {
@@ -28,11 +31,17 @@ class DownloadController extends ChangeNotifier {
 
     // TODO
     // 1 – set status to downloading
+    _status = DownloadStatus.downloading;
+    notifyListeners();
     // 2 – Loop 10 times and increment the download progress (0 -> 0.1 -> 0.2 )
     //      - Wait 1 second :  await Future.delayed(const Duration(milliseconds: 1000));
-
+    for (int i = 0; i < 10; i++) {
+      _progress += 0.1;
+      await Future.delayed(const Duration(milliseconds: 1000));
+      notifyListeners();
+    }
     // 3 – set status to downloaded
+    _status = DownloadStatus.downloaded;
+    notifyListeners();
   }
 }
-
-
